@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 
 const footerLinks = {
@@ -18,9 +17,7 @@ const footerLinks = {
         title: 'Company',
         links: [
             { label: 'About Us', href: '/about' },
-            { label: 'Careers', href: '#' },
-            { label: 'Contact', href: '#' },
-            { label: 'Partners', href: '#' },
+            { label: 'Contact', href: '/contact' },
         ],
     },
     resources: {
@@ -51,12 +48,12 @@ export function Footer() {
                     {/* Brand Column */}
                     <div className="lg:w-1/3">
                         <Link href="/" className="inline-block mb-8">
-                            <div className="relative h-12 w-32 rounded-xl overflow-hidden bg-white p-1">
-                                <Image
+                            <div className="rounded-xl overflow-hidden bg-white p-1">
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
                                     src="/assets/logo.png"
                                     alt="DATZEN"
-                                    fill
-                                    className="object-contain object-left"
+                                    className="h-12 w-auto block"
                                 />
                             </div>
                         </Link>
@@ -100,13 +97,11 @@ export function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-slate-800/50 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-slate-500">
-                    <p>© {currentYear} DATZEN Technologies. All rights reserved.</p>
+                <div className="border-t border-slate-800/50 pt-8 flex flex-col items-center gap-4 text-xs text-slate-500 text-center">
+                    <p>© 2026 Datzen Tech Private Limited. Bangalore</p>
                     <div className="flex gap-8">
-                        <Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Terms of Service</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Security</Link>
-                        <Link href="#" className="hover:text-white transition-colors">Sitemap</Link>
+                        <Link href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                        <Link href="/terms-of-service" className="hover:text-white transition-colors">Terms of Service</Link>
                     </div>
                 </div>
             </div>

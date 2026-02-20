@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+
 import { Menu, X, ChevronDown, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { motion } from 'framer-motion';
@@ -42,13 +42,12 @@ export function Navbar() {
                 <div className="flex items-center justify-between">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <div className="relative h-10 w-28 md:h-12 md:w-32 transition-all duration-300 rounded-xl overflow-hidden bg-white p-1">
-                            <Image
+                        <div className="rounded-xl overflow-hidden bg-white p-1 transition-all duration-300">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
                                 src="/assets/logo.png"
                                 alt="DATZEN"
-                                fill
-                                className="object-contain object-left"
-                                priority
+                                className="h-10 w-auto block"
                             />
                         </div>
                     </Link>

@@ -12,6 +12,10 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata: Metadata = {
   title: 'DATZEN - Secure Payments. Smarter Risk Intelligence.',
   description: 'Enterprise-grade fraud detection, KYC verification, and unified payments platform.',
+  icons: {
+    icon: [{ url: '/assets/logo.png', type: 'image/png' }],
+    apple: [{ url: '/assets/logo.png', type: 'image/png' }],
+  },
 }
 
 export default function RootLayout({

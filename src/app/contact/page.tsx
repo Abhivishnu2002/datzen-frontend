@@ -46,7 +46,7 @@ export default function ContactPage() {
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-4">
+                                {/* <div className="flex items-start gap-4">
                                     <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
                                         <Phone size={24} />
                                     </div>
@@ -68,7 +68,7 @@ export default function ContactPage() {
                                             Tech City, TC 94000
                                         </p>
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </motion.div>
