@@ -3,11 +3,15 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
+import MaintenanceMode from '@/components/layout/MaintenanceMode'
 
 import { ModalProvider } from '@/context/ModalContext';
 import { DemoModal } from '@/components/ui/DemoModal';
 
 const inter = Inter({ subsets: ['latin'] })
+
+// MAINTENANCE MODE SWITCH (SET TO TRUE TO DOWN THE SITE)
+const isMaintenanceMode = true;
 
 export const metadata: Metadata = {
   title: 'DATZEN - Secure Payments. Smarter Risk Intelligence.',
@@ -27,12 +31,18 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className} suppressHydrationWarning>
         <ModalProvider>
-          <Navbar />
-          <main className="min-h-screen">
-            {children}
-          </main>
-          <DemoModal />
-          <Footer />
+          {isMaintenanceMode ? (
+            <MaintenanceMode />
+          ) : (
+            <>
+              <Navbar />
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <DemoModal />
+              <Footer />
+            </>
+          )}
         </ModalProvider>
       </body>
     </html>
