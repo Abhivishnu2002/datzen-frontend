@@ -11,7 +11,7 @@ import { DemoModal } from '@/components/ui/DemoModal';
 const inter = Inter({ subsets: ['latin'] })
 
 // MAINTENANCE MODE SWITCH (SET TO TRUE TO DOWN THE SITE)
-const isMaintenanceMode = true;
+const isMaintenanceMode = false;
 
 export const metadata: Metadata = {
   title: 'DATZEN - Secure Payments. Smarter Risk Intelligence.',
