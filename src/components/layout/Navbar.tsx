@@ -25,8 +25,9 @@ export function Navbar() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Hide Navbar on Auth pages
+    // Hide Navbar on Auth pages and dashboard (dashboard has its own navbar)
     if (pathname === '/login' || pathname === '/signup') return null;
+    if (pathname?.startsWith('/dashboard')) return null;
 
     return (
         <motion.header
