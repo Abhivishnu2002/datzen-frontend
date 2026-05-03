@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { CreatePaymentForm } from './components/CreatePaymentForm';
 import { DashboardStats } from './components/DashboardStats';
 import { PaymentHistoryList } from './components/PaymentHistoryList';
@@ -8,8 +9,13 @@ import { QRCodeModal } from './components/QRCodeModal';
 import { PageHeader } from './components/shared/PageHeader';
 import { usePayments } from './components/hooks/usePayments';
 import { useQRCode } from './components/hooks/useQRcode';
+import { getToken, getUser, clearAuth } from '@/utils/auth';
 
 export default function DashboardPage() {
+    // ── ALL hooks at the top — never conditionally ────────────────────────────
+    const router = useRouter();
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
     const {
         payments,
         isCreating,
@@ -30,6 +36,25 @@ export default function DashboardPage() {
         return { totalOrders, totalVolume, paid, pending };
     }, [payments]);
 
+    // ── Auth guard ────────────────────────────────────────────────────────────
+    useEffect(() => {
+        const token = getToken();
+        if (!token) {
+            clearAuth();
+            router.replace('/login');
+            setIsAuthenticated(false);
+        } else {
+            setIsAuthenticated(true);
+        }
+    }, [router]);
+
+    // ── Resolve display name from stored user ─────────────────────────────────
+    const user = getUser();
+    const displayName = user?.name ?? 'Merchant';
+
+    // ── Render control — AFTER all hooks ──────────────────────────────────────
+    if (!isAuthenticated) return null;
+
     return (
         <section className="px-4 py-8 sm:px-6 md:px-8 md:py-10">
             <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
@@ -39,7 +64,7 @@ export default function DashboardPage() {
                     description="Create payments and monitor recent transactions."
                     actions={
                         <p className="text-sm text-slate-500">
-                            Welcome, <span className="font-medium text-slate-900">Merchant</span>
+                            Welcome, <span className="font-medium text-slate-900">{displayName}</span>
                         </p>
                     }
                 />

@@ -1,10 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { clearAuth } from '@/utils/auth';
 
 const NAV_ITEMS = [
     { href: '/dashboard', label: 'Overview' },
@@ -16,10 +17,17 @@ const NAV_ITEMS = [
 
 export function DashboardNavbar() {
     const pathname = usePathname();
+    const router   = useRouter();
     const [open, setOpen] = useState(false);
 
     const isActive = (href: string) =>
         href === '/dashboard' ? pathname === '/dashboard' : pathname?.startsWith(href);
+
+    // ── Logout ────────────────────────────────────────────────────────────────
+    const handleLogout = () => {
+        clearAuth();
+        router.push('/login');
+    };
 
     return (
         <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/85 backdrop-blur-xl">
@@ -49,10 +57,12 @@ export function DashboardNavbar() {
                 </nav>
 
                 <div className="flex items-center gap-3">
+                    {/* Desktop logout button */}
                     <Button
                         type="button"
                         variant="outline"
                         size="sm"
+                        onClick={handleLogout}
                         className="hidden md:inline-flex"
                     >
                         Logout
@@ -85,6 +95,14 @@ export function DashboardNavbar() {
                                 {item.label}
                             </Link>
                         ))}
+                        {/* Mobile logout button */}
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="mt-1 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                        >
+                            Logout
+                        </button>
                     </nav>
                 </div>
             )}

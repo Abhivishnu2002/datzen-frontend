@@ -1,15 +1,56 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, Mail, ArrowRight, Github, User, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight, User, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import Image from 'next/image';
+import { API_URL } from '@/utils/auth';
 
 export default function SignupPage() {
+    // ── UI state ──────────────────────────────────────────────────────────────
     const [showPassword, setShowPassword] = useState(false);
 
+    // ── Auth state ────────────────────────────────────────────────────────────
+    const [name, setName]         = useState('');
+    const [email, setEmail]       = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading]   = useState(false);
+    const [error, setError]       = useState<string | null>(null);
+
+    const router = useRouter();
+
+    // ── Handle form submit ────────────────────────────────────────────────────
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError(null);
+        setLoading(true);
+
+        try {
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data?.message ?? 'Registration failed. Please check your details and try again.');
+                return;
+            }
+
+            // ── Redirect to login on success ──────────────────────────────────
+            router.push('/login');
+        } catch {
+            setError('Unable to reach the server. Please check your connection and try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen flex w-full bg-slate-50 relative">
             {/* Home Link */}
@@ -73,7 +114,15 @@ export default function SignupPage() {
                         <p className="text-slate-600">Enter your details to get started with DATZEN.</p>
                     </div>
 
-                    <form className="space-y-5">
+                    <form className="space-y-5" onSubmit={handleSubmit}>
+
+                        {/* ── Error Banner ─────────────────────────────────── */}
+                        {error && (
+                            <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+                                <span className="mt-0.5 shrink-0">⚠️</span>
+                                <span>{error}</span>
+                            </div>
+                        )}
 
                         {/* Inputs */}
                         <div className="space-y-4">
@@ -85,7 +134,11 @@ export default function SignupPage() {
                                         type="text"
                                         id="name"
                                         placeholder="John Doe"
-                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                 </div>
                             </div>
@@ -98,7 +151,11 @@ export default function SignupPage() {
                                         type="email"
                                         id="email"
                                         placeholder="john@company.com"
-                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                 </div>
                             </div>
@@ -108,10 +165,14 @@ export default function SignupPage() {
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                     <input
-                                        type={showPassword ? "text" : "password"}
+                                        type={showPassword ? 'text' : 'password'}
                                         id="password"
                                         placeholder="Create a password"
-                                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                     <button
                                         type="button"
@@ -131,9 +192,32 @@ export default function SignupPage() {
                             </label>
                         </div>
 
-                        <Button className="w-full py-6 text-lg font-bold shadow-lg shadow-blue-500/20 rounded-xl group">
-                            Create Account
-                            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        {/* ── Submit Button ─────────────────────────────────── */}
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-6 text-lg font-bold shadow-lg shadow-blue-500/20 rounded-xl group disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {loading ? (
+                                <>
+                                    <svg
+                                        className="animate-spin -ml-1 mr-2 h-5 w-5"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                    Creating account...
+                                </>
+                            ) : (
+                                <>
+                                    Create Account
+                                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
                         </Button>
 
                         <div className="text-center text-sm text-slate-600">

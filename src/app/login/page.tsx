@@ -1,15 +1,59 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Lock, Mail, ArrowRight, Github, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import Image from 'next/image';
+import { API_URL, setToken, setUser } from '@/utils/auth';
 
 export default function LoginPage() {
+    // ── UI state ──────────────────────────────────────────────────────────────
     const [showPassword, setShowPassword] = useState(false);
 
+    // ── Auth state ────────────────────────────────────────────────────────────
+    const [email, setEmail]       = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading]   = useState(false);
+    const [error, setError]       = useState<string | null>(null);
+
+    const router = useRouter();
+
+    // ── Handle form submit ────────────────────────────────────────────────────
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setError(null);
+        setLoading(true);
+
+        try {
+            const res = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                setError(data?.message ?? 'Invalid email or password. Please try again.');
+                return;
+            }
+
+            // ── Store auth data ───────────────────────────────────────────────
+            setToken(data.token);
+            setUser(data.user);
+
+            // ── Redirect on success ───────────────────────────────────────────
+            router.push('/dashboard');
+        } catch {
+            setError('Unable to reach the server. Please check your connection and try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ─────────────────────────────────────────────────────────────────────────
     return (
         <div className="min-h-screen flex w-full bg-slate-50 relative">
             {/* Home Link */}
@@ -73,7 +117,15 @@ export default function LoginPage() {
                         <p className="text-slate-600">Please enter your details to sign in.</p>
                     </div>
 
-                    <form className="space-y-6">
+                    <form className="space-y-6" onSubmit={handleSubmit}>
+
+                        {/* ── Error Banner ─────────────────────────────────── */}
+                        {error && (
+                            <div className="flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl">
+                                <span className="mt-0.5 shrink-0">⚠️</span>
+                                <span>{error}</span>
+                            </div>
+                        )}
 
                         {/* Inputs */}
                         <div className="space-y-4">
@@ -85,7 +137,11 @@ export default function LoginPage() {
                                         type="email"
                                         id="email"
                                         placeholder="Enter your email"
-                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                 </div>
                             </div>
@@ -95,10 +151,14 @@ export default function LoginPage() {
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
                                     <input
-                                        type={showPassword ? "text" : "password"}
+                                        type={showPassword ? 'text' : 'password'}
                                         id="password"
                                         placeholder="Enter your password"
-                                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        required
+                                        disabled={loading}
+                                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all placeholder:text-slate-400 text-slate-900 disabled:opacity-60 disabled:cursor-not-allowed"
                                     />
                                     <button
                                         type="button"
@@ -121,9 +181,32 @@ export default function LoginPage() {
                             </Link>
                         </div>
 
-                        <Button className="w-full py-6 text-lg font-bold shadow-lg shadow-blue-500/20 rounded-xl group">
-                            Sign in
-                            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        {/* ── Submit Button ─────────────────────────────────── */}
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full py-6 text-lg font-bold shadow-lg shadow-blue-500/20 rounded-xl group disabled:opacity-70 disabled:cursor-not-allowed"
+                        >
+                            {loading ? (
+                                <>
+                                    <svg
+                                        className="animate-spin -ml-1 mr-2 h-5 w-5"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        aria-hidden="true"
+                                    >
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                    Signing in...
+                                </>
+                            ) : (
+                                <>
+                                    Sign in
+                                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                                </>
+                            )}
                         </Button>
 
                         <div className="text-center text-sm text-slate-600">
